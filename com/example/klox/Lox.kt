@@ -7,18 +7,18 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
 
-class Lox {
-    fun main(args: Array<String>) {
-        if (args.size > 1) {
-            println("Usage: klox [script]")
-            exitProcess(64)
-        } else if (args.size == 1) {
-            runFile(args[0])
-        } else {
-            runPrompt()
-        }
+fun main(args: Array<String>) {
+    if (args.size > 1) {
+        println("Usage: klox [script]")
+        exitProcess(64)
+    } else if (args.size == 1) {
+        Lox.runFile(args[0])
+    } else {
+        Lox.runPrompt()
     }
+}
 
+class Lox {
     companion object {
         private var hadError = false
         fun runFile(path: String) {
