@@ -29,3 +29,8 @@ replay_pid*
 *.iml
 *.iws
 *.ipr
+
+# Build
+out
+build
+bin
