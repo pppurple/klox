@@ -1,6 +1,45 @@
 package com.example.klox
 
-import com.example.klox.TokenType.*
+import com.example.klox.TokenType.AND
+import com.example.klox.TokenType.BANG
+import com.example.klox.TokenType.BANG_EQUAL
+import com.example.klox.TokenType.CLASS
+import com.example.klox.TokenType.COMMA
+import com.example.klox.TokenType.DOT
+import com.example.klox.TokenType.ELSE
+import com.example.klox.TokenType.EOF
+import com.example.klox.TokenType.EQUAL
+import com.example.klox.TokenType.EQUAL_EQUAL
+import com.example.klox.TokenType.FALSE
+import com.example.klox.TokenType.FOR
+import com.example.klox.TokenType.FUN
+import com.example.klox.TokenType.GREATER
+import com.example.klox.TokenType.GREATER_EQUAL
+import com.example.klox.TokenType.IDENTIFIER
+import com.example.klox.TokenType.IF
+import com.example.klox.TokenType.LEFT_BRACE
+import com.example.klox.TokenType.LEFT_PAREN
+import com.example.klox.TokenType.LESS
+import com.example.klox.TokenType.LESS_EQUAL
+import com.example.klox.TokenType.MINUS
+import com.example.klox.TokenType.NIL
+import com.example.klox.TokenType.NUMBER
+import com.example.klox.TokenType.OR
+import com.example.klox.TokenType.PLUS
+import com.example.klox.TokenType.PRINT
+import com.example.klox.TokenType.RETURN
+import com.example.klox.TokenType.RIGHT_BRACE
+import com.example.klox.TokenType.RIGHT_PAREN
+import com.example.klox.TokenType.SEMICOLON
+import com.example.klox.TokenType.SLASH
+import com.example.klox.TokenType.STAR
+import com.example.klox.TokenType.STRING
+import com.example.klox.TokenType.SUPER
+import com.example.klox.TokenType.THIS
+import com.example.klox.TokenType.TRUE
+import com.example.klox.TokenType.VAR
+import com.example.klox.TokenType.WHILE
+
 
 class Scanner(
     private val source: String,
