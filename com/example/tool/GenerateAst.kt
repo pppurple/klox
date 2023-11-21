@@ -40,6 +40,13 @@ class GenerateAst {
             writer.println()
             writer.println("interface $baseName {")
 
+            defineVisitor(writer, baseName, types)
+
+            // fun accept() in base class
+            writer.println()
+            writer.println("    fun <R> accept(visitor: Visitor<R>): R")
+            writer.println()
+
             // AST classes
             types.forEach { type ->
                 val className = type.split(":")[0].trim()
@@ -50,6 +57,19 @@ class GenerateAst {
 
             writer.println("}")
             writer.close()
+        }
+
+        private fun defineVisitor(
+            writer: PrintWriter,
+            baseName: String,
+            types: List<String>,
+        ) {
+            writer.println("    interface Visitor<R> {")
+            types.forEach {
+                val typeName = it.split(":")[0].trim()
+                writer.println("        fun visit$typeName$baseName(${baseName.lowercase()}: $typeName): R")
+            }
+            writer.println("    }")
         }
 
         private fun defineType(
@@ -66,7 +86,12 @@ class GenerateAst {
                 val type = it.split(" ")[1]
                 writer.println("        val $name: $type,")
             }
-            writer.println("    ) : $baseName")
+            writer.println("    ) : $baseName {")
+            // implement accept()
+            writer.println("        override fun <R> accept(visitor: Visitor<R>): R {")
+            writer.println("            return visitor.visit$className$baseName(this)")
+            writer.println("        }")
+            writer.println("    }")
             writer.println()
         }
     }
