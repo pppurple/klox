@@ -43,10 +43,13 @@ class Lox {
         fun run(source: String) {
             val scanner = Scanner(source)
             val tokens = scanner.scanTokens()
+            val parser = Parser(tokens)
+            val expression = parser.parse()
 
-            tokens.forEach {
-                println(it)
-            }
+            // Stop if has error
+            if (hadError) return
+
+            println(AstPrinter().print(checkNotNull(expression)))
         }
 
         fun error(line: Int, message: String) {
@@ -61,5 +64,23 @@ class Lox {
             println("[line: $line ] Error $where : $message")
             hadError = true
         }
+
+        fun error(token: Token, message: String) {
+            if (token.type == TokenType.EOF) {
+                report(
+                    line = token.line,
+                    where = " at end",
+                    message = message,
+                )
+            } else {
+                report(
+                    line = token.line,
+                    where = " at '${token.lexeme}'",
+                    message = message,
+                )
+            }
+        }
     }
+
+    class ParserError : RuntimeException()
 }
