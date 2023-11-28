@@ -22,8 +22,17 @@ class GenerateAst {
                 types = listOf(
                     "Binary : left Expr, operator Token, right Expr ",
                     "Grouping : expression Expr",
-                    "Literal : value Any",
+                    "Literal : value Any?",
                     "Unary : operator Token, right Expr",
+                )
+            )
+
+            defineAst(
+                outputDir = outputDir,
+                baseName = "Stmt",
+                types = listOf(
+                    "Expression : expression Expr",
+                    "Print : expression Expr",
                 )
             )
         }

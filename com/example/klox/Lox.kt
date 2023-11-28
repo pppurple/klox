@@ -48,12 +48,12 @@ class Lox {
             val scanner = Scanner(source)
             val tokens = scanner.scanTokens()
             val parser = Parser(tokens)
-            val expression = parser.parse()
+            val statements = parser.parse()
 
-            // Stop if has error
+            // Stop if has syntax error
             if (hadError) return
 
-            interpreter.interpret(checkNotNull(expression))
+            interpreter.interpret(statements)
         }
 
         fun error(line: Int, message: String) {

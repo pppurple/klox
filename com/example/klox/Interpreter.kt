@@ -12,11 +12,12 @@ import com.example.klox.TokenType.PLUS
 import com.example.klox.TokenType.SLASH
 import com.example.klox.TokenType.STAR
 
-class Interpreter() : Expr.Visitor<Any?> {
-    fun interpret(expression: Expr) {
+class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
+    fun interpret(statements: List<Stmt>) {
         try {
-            val value = evaluate(expression)
-            println(stringify(value))
+            statements.forEach {
+                execute(it)
+            }
         } catch (error: RuntimeError) {
             Lox.runtimeError(error)
         }
@@ -150,5 +151,18 @@ class Interpreter() : Expr.Visitor<Any?> {
 
     private fun evaluate(expr: Expr): Any? {
         return expr.accept(this)
+    }
+
+    private fun execute(stmt: Stmt) {
+        stmt.accept(this)
+    }
+
+    override fun visitExpressionStmt(stmt: Stmt.Expression) {
+        evaluate(stmt.expression)
+    }
+
+    override fun visitPrintStmt(stmt: Stmt.Print) {
+        val value = evaluate(stmt.expression)
+        println(stringify(value))
     }
 }
