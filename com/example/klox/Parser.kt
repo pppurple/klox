@@ -46,8 +46,8 @@ class Parser(
 ) {
     private var current: Int = 0
 
-    fun parse(): List<Stmt> {
-        val statement = mutableListOf<Stmt>()
+    fun parse(): List<Stmt?> {
+        val statement = mutableListOf<Stmt?>()
         while (!isAtEnd()) {
             statement.add(declaration())
         }

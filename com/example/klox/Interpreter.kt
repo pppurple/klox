@@ -13,7 +13,9 @@ import com.example.klox.TokenType.SLASH
 import com.example.klox.TokenType.STAR
 
 class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
-    fun interpret(statements: List<Stmt>) {
+    private val environment = Environment()
+
+    fun interpret(statements: List<Stmt?>) {
         try {
             statements.forEach {
                 execute(it)
@@ -109,8 +111,8 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         }
     }
 
-    override fun visitVariableExpr(expr: Expr.Variable): Any? {
-        TODO("Not yet implemented")
+    override fun visitVariableExpr(expr: Expr.Variable): Any {
+        return environment.get(expr.name)
     }
 
     private fun checkNumberOperand(operator: Token, operand: Any?) {
@@ -157,8 +159,8 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         return expr.accept(this)
     }
 
-    private fun execute(stmt: Stmt) {
-        stmt.accept(this)
+    private fun execute(stmt: Stmt?) {
+        stmt?.accept(this)
     }
 
     override fun visitExpressionStmt(stmt: Stmt.Expression) {
@@ -171,6 +173,12 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     }
 
     override fun visitVarStmt(stmt: Stmt.Var) {
-        TODO("Not yet implemented")
+        val value = if (stmt.initializer != null) {
+            evaluate(stmt.initializer)
+        } else {
+            null
+        }
+
+        environment.define(stmt.name.lexeme, value)
     }
 }
