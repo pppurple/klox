@@ -49,7 +49,7 @@ class Parser(
     fun parse(): List<Stmt> {
         val statement = mutableListOf<Stmt>()
         while (!isAtEnd()) {
-            statement.add(statement())
+            statement.add(declaration())
         }
 
         return statement
@@ -57,6 +57,16 @@ class Parser(
 
     private fun expression(): Expr {
         return equality()
+    }
+
+    private fun declaration(): Stmt? {
+        try {
+            if (match(VAR)) return varDeclaration()
+            return statement()
+        } catch (error: ParserError) {
+            synchronize()
+            return null
+        }
     }
 
     private fun statement(): Stmt {
@@ -69,6 +79,19 @@ class Parser(
         val value = expression()
         consume(SEMICOLON, "Expect ';' after value.")
         return Stmt.Print(value)
+    }
+
+    private fun varDeclaration(): Stmt {
+        val name = consume(IDENTIFIER, "Expect variable name.")
+
+        val initializer = if (match(EQUAL)) {
+            expression()
+        } else {
+            null
+        }
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.")
+        return Stmt.Var(name, initializer)
     }
 
     private fun expressionStatement(): Stmt {
@@ -134,6 +157,7 @@ class Parser(
         if (match(TRUE)) return Expr.Literal(true)
         if (match(NIL)) return Expr.Literal(null)
         if (match(NUMBER, STRING)) return Expr.Literal(previous().literal)
+        if (match(IDENTIFIER)) return Expr.Variable(previous())
         if (match(LEFT_PAREN)) {
             val expr = expression()
             consume(RIGHT_PAREN, "Expect ')' after expression.")
