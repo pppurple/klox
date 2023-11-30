@@ -33,6 +33,7 @@ class GenerateAst {
                 outputDir = outputDir,
                 baseName = "Stmt",
                 types = listOf(
+                    "Block : statements List<Stmt?>",
                     "Expression : expression Expr",
                     "Print : expression Expr",
                     "Var : name Token, initializer Expr?",

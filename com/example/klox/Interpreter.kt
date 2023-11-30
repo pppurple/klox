@@ -13,7 +13,7 @@ import com.example.klox.TokenType.SLASH
 import com.example.klox.TokenType.STAR
 
 class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
-    private val environment = Environment()
+    private var environment = Environment()
 
     fun interpret(statements: List<Stmt?>) {
         try {
@@ -161,6 +161,26 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
 
     private fun execute(stmt: Stmt?) {
         stmt?.accept(this)
+    }
+
+    private fun excuteBlock(
+        statements: List<Stmt?>,
+        environment: Environment,
+    ) {
+        val previous = this.environment
+        try {
+            this.environment = environment
+            statements.forEach {
+                execute(it)
+            }
+        } finally {
+            this.environment = previous
+        }
+
+    }
+
+    override fun visitBlockStmt(stmt: Stmt.Block) {
+        excuteBlock(stmt.statements, Environment(environment))
     }
 
     override fun visitExpressionStmt(stmt: Stmt.Expression) {
