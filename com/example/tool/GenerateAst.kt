@@ -20,11 +20,12 @@ class GenerateAst {
                 outputDir = outputDir,
                 baseName = "Expr",
                 types = listOf(
-                    "Binary : left Expr, operator Token, right Expr ",
+                    "Assign : name Token, value Expr",
+                    "Binary : left Expr, operator Token, right Expr",
                     "Grouping : expression Expr",
                     "Literal : value Any?",
                     "Unary : operator Token, right Expr",
-                    "Variable: name Token",
+                    "Variable : name Token",
                 )
             )
 
@@ -34,7 +35,7 @@ class GenerateAst {
                 types = listOf(
                     "Expression : expression Expr",
                     "Print : expression Expr",
-                    "Var: name Token, initializer Expr?",
+                    "Var : name Token, initializer Expr?",
                 )
             )
         }
