@@ -35,6 +35,7 @@ class GenerateAst {
                 types = listOf(
                     "Block : statements List<Stmt?>",
                     "Expression : expression Expr",
+                    "If : condition Expr, thenBranch Stmt, elseBranch Stmt?",
                     "Print : expression Expr",
                     "Var : name Token, initializer Expr?",
                 )
