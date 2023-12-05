@@ -113,6 +113,7 @@ class Parser(
     private fun statement(): Stmt {
         if (match(IF)) return ifStatement()
         if (match(PRINT)) return printStatement()
+        if (match(WHILE)) return whileStatement()
         if (match(LEFT_BRACE)) return Stmt.Block(block())
 
         return expressionStatement()
@@ -149,6 +150,15 @@ class Parser(
 
         consume(SEMICOLON, "Expect ';' after variable declaration.")
         return Stmt.Var(name, initializer)
+    }
+
+    private fun whileStatement(): Stmt {
+        consume(LEFT_PAREN, "Expect '(' after 'while'.")
+        val condition = expression()
+        consume(RIGHT_PAREN, "Expect ')' after condition.")
+        val body = statement()
+
+        return Stmt.While(condition, body)
     }
 
     private fun expressionStatement(): Stmt {
