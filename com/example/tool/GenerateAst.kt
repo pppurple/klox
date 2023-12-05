@@ -20,10 +20,23 @@ class GenerateAst {
                 outputDir = outputDir,
                 baseName = "Expr",
                 types = listOf(
-                    "Binary : left Expr, operator Token, right Expr ",
+                    "Assign : name Token, value Expr",
+                    "Binary : left Expr, operator Token, right Expr",
                     "Grouping : expression Expr",
-                    "Literal : value Any",
+                    "Literal : value Any?",
                     "Unary : operator Token, right Expr",
+                    "Variable : name Token",
+                )
+            )
+
+            defineAst(
+                outputDir = outputDir,
+                baseName = "Stmt",
+                types = listOf(
+                    "Block : statements List<Stmt?>",
+                    "Expression : expression Expr",
+                    "Print : expression Expr",
+                    "Var : name Token, initializer Expr?",
                 )
             )
         }
