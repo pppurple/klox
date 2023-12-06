@@ -14,7 +14,19 @@ import com.example.klox.TokenType.SLASH
 import com.example.klox.TokenType.STAR
 
 class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
-    private var environment = Environment()
+    private val globals = Environment()
+    private val environment = globals
+
+    init {
+        globals.define("clock", object : LoxCallable {
+            override fun arity(): Int = 0
+            override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
+                return System.currentTimeMillis() / 1000.0
+            }
+
+            override fun toString(): String = "<native fn>"
+        })
+    }
 
     fun interpret(statements: List<Stmt?>) {
         try {
@@ -101,7 +113,7 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         if (arguments.size != callee.arity()) {
             throw RuntimeError(expr.paren, "Expected ${callee.arity()} arguments but got ${arguments.size}.")
         }
-       
+
         return callee.call(this, arguments)
     }
 
