@@ -24,6 +24,7 @@ class GenerateAst {
                     "Binary : left Expr, operator Token, right Expr",
                     "Grouping : expression Expr",
                     "Literal : value Any?",
+                    "Logical : left Expr, operator Token, right Expr",
                     "Unary : operator Token, right Expr",
                     "Variable : name Token",
                 )
@@ -35,8 +36,10 @@ class GenerateAst {
                 types = listOf(
                     "Block : statements List<Stmt?>",
                     "Expression : expression Expr",
+                    "If : condition Expr, thenBranch Stmt, elseBranch Stmt?",
                     "Print : expression Expr",
                     "Var : name Token, initializer Expr?",
+                    "While : condition Expr, body Stmt",
                 )
             )
         }

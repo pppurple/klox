@@ -33,6 +33,7 @@ class Environment() {
             // Smart cast to 'Environment' is impossible,
             // because 'enclosing' is a mutable property that could have been changed by this time
             checkNotNull(enclosing).assign(name, value)
+            return
         }
 
         throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
