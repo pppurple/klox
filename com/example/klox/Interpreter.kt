@@ -14,7 +14,7 @@ import com.example.klox.TokenType.SLASH
 import com.example.klox.TokenType.STAR
 
 class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
-    private val globals = Environment()
+    val globals = Environment()
     private var environment = globals
 
     init {
@@ -204,7 +204,7 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         stmt?.accept(this)
     }
 
-    private fun executeBlock(
+    fun executeBlock(
         statements: List<Stmt?>,
         environment: Environment,
     ) {
@@ -229,7 +229,8 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     }
 
     override fun visitFunctionStmt(stmt: Stmt.Function) {
-        TODO("Not yet implemented")
+        val function = LoxFunction(stmt)
+        environment.define(stmt.name.lexeme, function)
     }
 
     override fun visitIfStmt(stmt: Stmt.If) {
