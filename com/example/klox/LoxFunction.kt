@@ -11,7 +11,11 @@ class LoxFunction(private val declaration: Stmt.Function) : LoxCallable {
             environment.define(token.lexeme, arguments[index])
         }
 
-        interpreter.executeBlock(declaration.body, environment)
+        try {
+            interpreter.executeBlock(declaration.body, environment)
+        } catch (returnValue: Return) {
+            return returnValue.value
+        }
         return null
     }
 
