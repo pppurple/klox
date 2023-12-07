@@ -15,7 +15,7 @@ import com.example.klox.TokenType.STAR
 
 class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     private val globals = Environment()
-    private val environment = globals
+    private var environment = globals
 
     init {
         globals.define("clock", object : LoxCallable {
@@ -204,7 +204,7 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         stmt?.accept(this)
     }
 
-    private fun excuteBlock(
+    private fun executeBlock(
         statements: List<Stmt?>,
         environment: Environment,
     ) {
@@ -221,7 +221,7 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     }
 
     override fun visitBlockStmt(stmt: Stmt.Block) {
-        excuteBlock(stmt.statements, Environment(environment))
+        executeBlock(stmt.statements, Environment(environment))
     }
 
     override fun visitExpressionStmt(stmt: Stmt.Expression) {
