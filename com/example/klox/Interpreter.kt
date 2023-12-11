@@ -14,7 +14,19 @@ import com.example.klox.TokenType.SLASH
 import com.example.klox.TokenType.STAR
 
 class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
-    private var environment = Environment()
+    val globals = Environment()
+    private var environment = globals
+
+    init {
+        globals.define("clock", object : LoxCallable {
+            override fun arity(): Int = 0
+            override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
+                return System.currentTimeMillis() / 1000.0
+            }
+
+            override fun toString(): String = "<native fn>"
+        })
+    }
 
     fun interpret(statements: List<Stmt?>) {
         try {
@@ -86,6 +98,23 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
                 null
             }
         }
+    }
+
+    override fun visitCallExpr(expr: Expr.Call): Any? {
+        val callee = evaluate(expr.callee)
+
+        val arguments = expr.arguments.map {
+            evaluate(it)
+        }
+
+        if (callee !is LoxCallable) {
+            throw RuntimeError(expr.paren, "Can only call functions and classes.")
+        }
+        if (arguments.size != callee.arity()) {
+            throw RuntimeError(expr.paren, "Expected ${callee.arity()} arguments but got ${arguments.size}.")
+        }
+
+        return callee.call(this, arguments)
     }
 
     override fun visitGroupingExpr(expr: Expr.Grouping): Any? {
@@ -175,7 +204,7 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         stmt?.accept(this)
     }
 
-    private fun excuteBlock(
+    fun executeBlock(
         statements: List<Stmt?>,
         environment: Environment,
     ) {
@@ -192,11 +221,16 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     }
 
     override fun visitBlockStmt(stmt: Stmt.Block) {
-        excuteBlock(stmt.statements, Environment(environment))
+        executeBlock(stmt.statements, Environment(environment))
     }
 
     override fun visitExpressionStmt(stmt: Stmt.Expression) {
         evaluate(stmt.expression)
+    }
+
+    override fun visitFunctionStmt(stmt: Stmt.Function) {
+        val function = LoxFunction(stmt, environment)
+        environment.define(stmt.name.lexeme, function)
     }
 
     override fun visitIfStmt(stmt: Stmt.If) {
@@ -210,6 +244,16 @@ class Interpreter() : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     override fun visitPrintStmt(stmt: Stmt.Print) {
         val value = evaluate(stmt.expression)
         println(stringify(value))
+    }
+
+    override fun visitReturnStmt(stmt: Stmt.Return) {
+        val value = if (stmt.value == null) {
+            null
+        } else {
+            evaluate(stmt.value)
+        }
+
+        throw Return(value)
     }
 
     override fun visitVarStmt(stmt: Stmt.Var) {

@@ -102,6 +102,7 @@ class Parser(
 
     private fun declaration(): Stmt? {
         try {
+            if (match(FUN)) return function("function")
             if (match(VAR)) return varDeclaration()
             return statement()
         } catch (error: ParserError) {
@@ -114,6 +115,7 @@ class Parser(
         if (match(FOR)) return forStatement()
         if (match(IF)) return ifStatement()
         if (match(PRINT)) return printStatement()
+        if (match(RETURN)) return returnStatement()
         if (match(WHILE)) return whileStatement()
         if (match(LEFT_BRACE)) return Stmt.Block(block())
 
@@ -183,6 +185,18 @@ class Parser(
         return Stmt.Print(value)
     }
 
+    private fun returnStatement(): Stmt {
+        val keyword = previous()
+        val value = if (!check(SEMICOLON)) {
+            expression()
+        } else {
+            null
+        }
+
+        consume(SEMICOLON, "Expect ';' after return value.")
+        return Stmt.Return(keyword, value)
+    }
+
     private fun varDeclaration(): Stmt {
         val name = consume(IDENTIFIER, "Expect variable name.")
 
@@ -209,6 +223,24 @@ class Parser(
         val expr = expression()
         consume(SEMICOLON, "Expect ';' after expression.")
         return Stmt.Expression(expr)
+    }
+
+    private fun function(kind: String): Stmt.Function {
+        val name = consume(IDENTIFIER, "Expect $kind name.")
+        consume(LEFT_PAREN, "Expect '(' after $kind name.")
+        val parameters = mutableListOf<Token>()
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (255 <= parameters.size) {
+                    error(peek(), "Can't have more than 255 parameters.")
+                }
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."))
+            } while (match(COMMA))
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.")
+        consume(LEFT_BRACE, "Expect '{' before $kind body.")
+        val body = block()
+        return Stmt.Function(name, parameters, body)
     }
 
     private fun block(): List<Stmt?> {
@@ -271,7 +303,37 @@ class Parser(
             val right = unary()
             return Expr.Unary(operator, right)
         }
-        return primary()
+        return call()
+    }
+
+    private fun finishCall(callee: Expr): Expr {
+        val arguments = mutableListOf<Expr>()
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (255 <= arguments.size) {
+                    error(peek(), "Can't have more than 255 arguments.")
+                }
+                arguments.add(expression())
+            } while (match(COMMA))
+        }
+
+        val paren = consume(RIGHT_PAREN, "Expect ')' after arguments.")
+
+        return Expr.Call(callee, paren, arguments)
+    }
+
+    private fun call(): Expr {
+        var expr = primary()
+
+        while (true) {
+            if (match(LEFT_PAREN)) {
+                expr = finishCall(expr)
+            } else {
+                break
+            }
+        }
+
+        return expr
     }
 
     private fun primary(): Expr {
