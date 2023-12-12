@@ -5,6 +5,7 @@ import java.util.Stack
 
 class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
     private val scopes = Stack<MutableMap<String, Boolean>>()
+    private var currentFunction = FunctionType.NONE
 
     fun resolve(statements: List<Stmt?>) {
         statements.forEach { resolve(it) }
@@ -27,6 +28,10 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
 
     override fun visitReturnStmt(stmt: Stmt.Return) {
+        if (currentFunction == FunctionType.NONE) {
+            Lox.error(stmt.keyword, "Can't return from top-level code.")
+        }
+
         if (stmt.value != null) {
             resolve(stmt.value)
         }
@@ -39,7 +44,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     override fun visitFunctionStmt(stmt: Stmt.Function) {
         declare(stmt.name)
         define(stmt.name)
-        resolveFunction(stmt)
+        resolveFunction(stmt, FunctionType.FUNCTION)
     }
 
     override fun visitVarStmt(stmt: Stmt.Var) {
@@ -106,13 +111,21 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         expr.accept(this)
     }
 
-    private fun resolveFunction(function: Stmt.Function) {
+    private fun resolveFunction(
+        function: Stmt.Function,
+        type: FunctionType,
+    ) {
+        val enclosingFunction = currentFunction
+        currentFunction = type
+
         beginScope()
         for (param in function.params) {
             declare(param)
             define(param)
         }
         resolve(function.body)
+        endScope()
+        currentFunction = enclosingFunction
     }
 
     private fun beginScope() {
@@ -127,6 +140,9 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         if (scopes.isEmpty()) return
 
         val scope = scopes.peek()
+        if (scope.containsKey(name.lexeme)) {
+            Lox.error(name, "Already a variable with this name in this scope.")
+        }
         scope[name.lexeme] = false
     }
 
@@ -142,6 +158,13 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
             if (scopes[i].containsKey(name.lexeme)) {
                 interpreter.resolve(expr, scopes.size - 1 - i)
             }
+        }
+    }
+
+    companion object {
+        private enum class FunctionType {
+            NONE,
+            FUNCTION,
         }
     }
 }
