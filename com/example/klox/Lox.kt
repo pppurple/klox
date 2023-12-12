@@ -44,7 +44,7 @@ class Lox {
             }
         }
 
-        fun run(source: String) {
+        private fun run(source: String) {
             val scanner = Scanner(source)
             val tokens = scanner.scanTokens()
             val parser = Parser(tokens)
@@ -52,6 +52,9 @@ class Lox {
 
             // Stop if has syntax error
             if (hadError) return
+
+            val resolver = Resolver(interpreter)
+            resolver.resolve(statements)
 
             interpreter.interpret(statements)
         }
@@ -65,7 +68,7 @@ class Lox {
             hadRuntimeError = true
         }
 
-        fun report(
+        private fun report(
             line: Int,
             where: String,
             message: String,

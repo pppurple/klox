@@ -3,10 +3,10 @@ package com.example.klox
 import java.util.Stack
 
 
-class Resolver(val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
+class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
     private val scopes = Stack<MutableMap<String, Boolean>>()
 
-    private fun resolve(statements: List<Stmt?>) {
+    fun resolve(statements: List<Stmt?>) {
         statements.forEach { resolve(it) }
     }
 
