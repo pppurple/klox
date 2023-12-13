@@ -53,7 +53,7 @@ class Environment() {
 
     private fun ancestor(distance: Int): Environment {
         var environment = this
-        for (i in 0..distance) {
+        for (i in 0..<distance) {
             // already checked if exists value in Resolver
             environment = checkNotNull(environment.enclosing)
         }
