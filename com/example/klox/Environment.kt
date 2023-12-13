@@ -42,4 +42,21 @@ class Environment() {
     fun define(name: String, value: Any?) {
         values[name] = value
     }
+
+    fun getAt(distance: Int, name: String): Any {
+        return checkNotNull(ancestor(distance).values[name])
+    }
+
+    fun assignAt(distance: Int, name: Token, value: Any?) {
+        ancestor(distance).values[name.lexeme] = value
+    }
+
+    private fun ancestor(distance: Int): Environment {
+        var environment = this
+        for (i in 0..<distance) {
+            // already checked if exists value in Resolver
+            environment = checkNotNull(environment.enclosing)
+        }
+        return environment
+    }
 }
