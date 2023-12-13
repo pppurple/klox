@@ -36,6 +36,7 @@ class GenerateAst {
                 baseName = "Stmt",
                 types = listOf(
                     "Block : statements List<Stmt?>",
+                    "Class : name Token, methods List<Stmt.Function>",
                     "Expression : expression Expr",
                     "Function : name Token, params List<Token>, body List<Stmt?>",
                     "If : condition Expr, thenBranch Stmt, elseBranch Stmt?",
