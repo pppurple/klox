@@ -5,9 +5,11 @@ interface Expr {
         fun visitAssignExpr(expr: Assign): R
         fun visitBinaryExpr(expr: Binary): R
         fun visitCallExpr(expr: Call): R
+        fun visitGetExpr(expr: Get): R
         fun visitGroupingExpr(expr: Grouping): R
         fun visitLiteralExpr(expr: Literal): R
         fun visitLogicalExpr(expr: Logical): R
+        fun visitSetExpr(expr: Set): R
         fun visitUnaryExpr(expr: Unary): R
         fun visitVariableExpr(expr: Variable): R
     }
@@ -43,6 +45,15 @@ interface Expr {
         }
     }
 
+    data class Get(
+        val obj: Expr,
+        val name: Token,
+    ) : Expr {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.visitGetExpr(this)
+        }
+    }
+
     data class Grouping(
         val expression: Expr,
     ) : Expr {
@@ -66,6 +77,16 @@ interface Expr {
     ) : Expr {
         override fun <R> accept(visitor: Visitor<R>): R {
             return visitor.visitLogicalExpr(this)
+        }
+    }
+
+    data class Set(
+        val obj: Expr,
+        val name: Token,
+        val value: Expr,
+    ) : Expr {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.visitSetExpr(this)
         }
     }
 

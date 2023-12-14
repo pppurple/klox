@@ -66,11 +66,20 @@ class Parser(
             val equals = previous()
             val value = assignment()
 
-            if (expr is Expr.Variable) {
-                val name = expr.name
-                return Expr.Assign(name, value)
+            when (expr) {
+                is Expr.Variable -> {
+                    val name = expr.name
+                    return Expr.Assign(name, value)
+                }
+
+                is Expr.Get -> {
+                    return Expr.Set(expr.obj, expr.name, value)
+                }
+
+                else -> {
+                    error(equals, "Invalid assignment target.")
+                }
             }
-            error(equals, "Invalid assignment target.")
         }
 
         return expr
@@ -343,6 +352,9 @@ class Parser(
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr)
+            } else if (match(DOT)) {
+                val name = consume(IDENTIFIER, "Expect property name after '.'.")
+                expr = Expr.Get(expr, name)
             } else {
                 break
             }
