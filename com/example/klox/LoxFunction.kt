@@ -4,6 +4,12 @@ class LoxFunction(
     private val declaration: Stmt.Function,
     private val closure: Environment,
 ) : LoxCallable {
+    fun bind(instance: LoxInstance): LoxFunction {
+        val environment = Environment(closure)
+        environment.define("this", instance)
+        return LoxFunction(declaration, environment)
+    }
+
     override fun arity(): Int {
         return declaration.params.size
     }

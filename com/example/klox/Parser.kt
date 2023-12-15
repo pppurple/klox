@@ -368,6 +368,7 @@ class Parser(
         if (match(TRUE)) return Expr.Literal(true)
         if (match(NIL)) return Expr.Literal(null)
         if (match(NUMBER, STRING)) return Expr.Literal(previous().literal)
+        if (match(THIS)) return Expr.This(previous())
         if (match(IDENTIFIER)) return Expr.Variable(previous())
         if (match(LEFT_PAREN)) {
             val expr = expression()
