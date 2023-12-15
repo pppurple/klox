@@ -6,6 +6,7 @@ import java.util.Stack
 class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.Visitor<Unit> {
     private val scopes = Stack<MutableMap<String, Boolean>>()
     private var currentFunction = FunctionType.NONE
+    private var currentClass = ClassType.NONE
 
     fun resolve(statements: List<Stmt?>) {
         statements.forEach { resolve(it) }
@@ -18,6 +19,9 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
 
     override fun visitClassStmt(stmt: Stmt.Class) {
+        val enclosingClass = currentClass
+        currentClass = ClassType.CLASS
+
         declare(stmt.name)
         define(stmt.name)
 
@@ -30,6 +34,8 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         }
 
         endScope()
+
+        currentClass = enclosingClass
     }
 
     override fun visitIfStmt(stmt: Stmt.If) {
@@ -116,6 +122,11 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     }
 
     override fun visitThisExpr(expr: Expr.This) {
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword, "Can't use 'this' outside of a class.")
+            return
+        }
+
         resolveLocal(expr, expr.keyword)
     }
 
@@ -194,6 +205,11 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
             NONE,
             FUNCTION,
             METHOD,
+        }
+
+        private enum class ClassType {
+            NONE,
+            CLASS,
         }
     }
 }
