@@ -66,11 +66,20 @@ class Parser(
             val equals = previous()
             val value = assignment()
 
-            if (expr is Expr.Variable) {
-                val name = expr.name
-                return Expr.Assign(name, value)
+            when (expr) {
+                is Expr.Variable -> {
+                    val name = expr.name
+                    return Expr.Assign(name, value)
+                }
+
+                is Expr.Get -> {
+                    return Expr.Set(expr.obj, expr.name, value)
+                }
+
+                else -> {
+                    error(equals, "Invalid assignment target.")
+                }
             }
-            error(equals, "Invalid assignment target.")
         }
 
         return expr
@@ -102,6 +111,7 @@ class Parser(
 
     private fun declaration(): Stmt? {
         try {
+            if (match(CLASS)) return classDeclaration()
             if (match(FUN)) return function("function")
             if (match(VAR)) return varDeclaration()
             return statement()
@@ -109,6 +119,20 @@ class Parser(
             synchronize()
             return null
         }
+    }
+
+    private fun classDeclaration(): Stmt {
+        val name = consume(IDENTIFIER, "Expect class name.")
+        consume(LEFT_BRACE, "Expect '{' before class body.")
+
+        val methods = mutableListOf<Stmt.Function>()
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            methods.add(function("method"))
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after class body.")
+
+        return Stmt.Class(name, methods)
     }
 
     private fun statement(): Stmt {
@@ -328,6 +352,9 @@ class Parser(
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr)
+            } else if (match(DOT)) {
+                val name = consume(IDENTIFIER, "Expect property name after '.'.")
+                expr = Expr.Get(expr, name)
             } else {
                 break
             }
@@ -341,6 +368,7 @@ class Parser(
         if (match(TRUE)) return Expr.Literal(true)
         if (match(NIL)) return Expr.Literal(null)
         if (match(NUMBER, STRING)) return Expr.Literal(previous().literal)
+        if (match(THIS)) return Expr.This(previous())
         if (match(IDENTIFIER)) return Expr.Variable(previous())
         if (match(LEFT_PAREN)) {
             val expr = expression()

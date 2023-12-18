@@ -118,6 +118,15 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         return callee.call(this, arguments)
     }
 
+    override fun visitGetExpr(expr: Expr.Get): Any {
+        val obj = evaluate(expr.obj)
+        if (obj is LoxInstance) {
+            return obj.get(expr.name)
+        }
+
+        throw RuntimeError(expr.name, "Only instances have properties.")
+    }
+
     override fun visitGroupingExpr(expr: Expr.Grouping): Any? {
         return evaluate(expr.expression)
     }
@@ -135,6 +144,21 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
             if (!isTruthy(left)) return left
         }
         return evaluate(expr.right)
+    }
+
+    override fun visitSetExpr(expr: Expr.Set): Any? {
+        val obj = evaluate(expr.obj)
+
+        if (obj !is LoxInstance) {
+            throw RuntimeError(expr.name, "Only instances have fields.")
+        }
+        val value = evaluate(expr.value)
+        obj.set(expr.name, value)
+        return value
+    }
+
+    override fun visitThisExpr(expr: Expr.This): Any {
+        return lookUpVariable(expr.keyword, expr)
     }
 
     override fun visitUnaryExpr(expr: Expr.Unary): Any? {
@@ -238,12 +262,25 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         executeBlock(stmt.statements, Environment(environment))
     }
 
+    override fun visitClassStmt(stmt: Stmt.Class) {
+        environment.define(stmt.name.lexeme, null)
+
+        val methods = mutableMapOf<String, LoxFunction>()
+        stmt.methods.forEach {
+            val function = LoxFunction(it, environment, it.name.lexeme == "init")
+            methods[it.name.lexeme] = function
+        }
+
+        val klass = LoxClass(stmt.name.lexeme, methods)
+        environment.assign(stmt.name, klass)
+    }
+
     override fun visitExpressionStmt(stmt: Stmt.Expression) {
         evaluate(stmt.expression)
     }
 
     override fun visitFunctionStmt(stmt: Stmt.Function) {
-        val function = LoxFunction(stmt, environment)
+        val function = LoxFunction(stmt, environment, false)
         environment.define(stmt.name.lexeme, function)
     }
 
