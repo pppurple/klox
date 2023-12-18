@@ -279,7 +279,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
             methods[it.name.lexeme] = function
         }
 
-        val klass = LoxClass(stmt.name.lexeme, superclass as LoxClass, methods)
+        val klass = LoxClass(stmt.name.lexeme, superclass as LoxClass?, methods)
         environment.assign(stmt.name, klass)
     }
 
