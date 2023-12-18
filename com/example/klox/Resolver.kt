@@ -29,7 +29,11 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         scopes.peek()["this"] = true
 
         stmt.methods.forEach {
-            val declaration = FunctionType.METHOD
+            val declaration = if (it.name.lexeme == "init") {
+                FunctionType.INITIALIZER
+            } else {
+                FunctionType.METHOD
+            }
             resolveFunction(it, declaration)
         }
 
@@ -54,6 +58,9 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         }
 
         if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                Lox.error(stmt.keyword, "Can't return a value from an initializer.")
+            }
             resolve(stmt.value)
         }
     }
@@ -204,6 +211,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         private enum class FunctionType {
             NONE,
             FUNCTION,
+            INITIALIZER,
             METHOD,
         }
 
