@@ -3,16 +3,8 @@ package com.example.klox
 class Environment(
     val enclosing: Environment?
 ) {
-    //var enclosing: Environment? = null
-
     constructor() : this(null)
 
-    /*
-        constructor(enclosing: Environment) : this() {
-            this.enclosing = enclosing
-        }
-
-    */
     private val values = mutableMapOf<String, Any?>()
 
     fun get(name: Token): Any {
@@ -21,9 +13,7 @@ class Environment(
         }
 
         if (enclosing != null) {
-            // Smart cast to 'Environment' is impossible,
-            // because 'enclosing' is a mutable property that could have been changed by this time
-            return checkNotNull(enclosing).get(name)
+            return enclosing.get(name)
         }
 
         throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
@@ -36,9 +26,7 @@ class Environment(
         }
 
         if (enclosing != null) {
-            // Smart cast to 'Environment' is impossible,
-            // because 'enclosing' is a mutable property that could have been changed by this time
-            checkNotNull(enclosing).assign(name, value)
+            enclosing.assign(name, value)
             return
         }
 

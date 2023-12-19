@@ -157,7 +157,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
         return value
     }
 
-    override fun visitSuperExpr(expr: Expr.Super): Any? {
+    override fun visitSuperExpr(expr: Expr.Super): Any {
         val distance = checkNotNull(locals[expr])
         val superclass = environment.getAt(distance, "super") as LoxClass
         val obj = environment.getAt(distance - 1, "this") as LoxInstance
