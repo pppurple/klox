@@ -28,6 +28,7 @@ class GenerateAst {
                     "Literal : value Any?",
                     "Logical : left Expr, operator Token, right Expr",
                     "Set : obj Expr, name Token, value Expr",
+                    "Super : keyword Token, method Token",
                     "This : keyword Token",
                     "Unary : operator Token, right Expr",
                     "Variable : name Token",

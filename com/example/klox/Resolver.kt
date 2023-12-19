@@ -29,7 +29,13 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         }
 
         if (stmt.superclass != null) {
+            currentClass = ClassType.SUBCLASS
             resolve(stmt.superclass)
+        }
+
+        if (stmt.superclass != null) {
+            beginScope()
+            scopes.peek()["super"] = true
         }
 
         beginScope()
@@ -45,6 +51,8 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         }
 
         endScope()
+
+        if (stmt.superclass != null) return endScope()
 
         currentClass = enclosingClass
     }
@@ -133,6 +141,16 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
     override fun visitSetExpr(expr: Expr.Set) {
         resolve(expr.value)
         resolve(expr.obj)
+    }
+
+    override fun visitSuperExpr(expr: Expr.Super) {
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword, "Can't use 'super' outside of a class.")
+        } else if (currentClass != ClassType.SUBCLASS) {
+            Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass.")
+        }
+
+        resolveLocal(expr, expr.keyword)
     }
 
     override fun visitThisExpr(expr: Expr.This) {
@@ -225,6 +243,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Unit>, Stmt.
         private enum class ClassType {
             NONE,
             CLASS,
+            SUBCLASS,
         }
     }
 }
