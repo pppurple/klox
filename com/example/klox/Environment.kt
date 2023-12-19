@@ -1,12 +1,18 @@
 package com.example.klox
 
-class Environment() {
-    private var enclosing: Environment? = null
+class Environment(
+    val enclosing: Environment?
+) {
+    //var enclosing: Environment? = null
 
-    constructor(enclosing: Environment) : this() {
-        this.enclosing = enclosing
-    }
+    constructor() : this(null)
 
+    /*
+        constructor(enclosing: Environment) : this() {
+            this.enclosing = enclosing
+        }
+
+    */
     private val values = mutableMapOf<String, Any?>()
 
     fun get(name: Token): Any {
